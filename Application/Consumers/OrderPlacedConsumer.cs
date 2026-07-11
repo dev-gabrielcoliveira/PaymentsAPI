@@ -35,6 +35,11 @@ namespace FCG.PaymentsAPI.Application.Consumers
 
 
             await context.Publish(paymentProcessedEvent);
+
+
+            _logger.LogInformation(
+                "[PaymentsAPI] Pagamento processado. Status: {Status}",
+                paymentProcessedEvent.Status);
         }
     }
 }
