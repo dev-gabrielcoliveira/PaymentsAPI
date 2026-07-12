@@ -1,10 +1,10 @@
-# FCG.PaymentsAPI
+# PaymentsAPI
 
 Microsserviço responsável pelo processamento de pagamentos da plataforma FIAP Cloud Games (FCG).
 
 ## Sobre o projeto
 
-O FCG.PaymentsAPI faz parte da arquitetura de microsserviços da plataforma FIAP Cloud Games.
+O PaymentsAPI faz parte da arquitetura de microsserviços da plataforma FIAP Cloud Games.
 
 Este serviço é responsável por consumir solicitações de compra de jogos, realizar o processamento simulado do pagamento e publicar o resultado da transação para os demais microsserviços.
 
