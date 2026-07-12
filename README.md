@@ -6,21 +6,20 @@ Microsserviço responsável pelo processamento de pagamentos da plataforma FIAP 
 
 O FCG.PaymentsAPI faz parte da arquitetura de microsserviços da plataforma FIAP Cloud Games.
 
-Este serviço é responsável por processar as solicitações de pagamento das compras de jogos, simulando a aprovação ou rejeição de uma transação.
+Este serviço é responsável por consumir solicitações de compra de jogos, realizar o processamento simulado do pagamento e publicar o resultado da transação para os demais microsserviços.
 
-A comunicação com os demais microsserviços é realizada de forma assíncrona utilizando eventos através do RabbitMQ.
+A comunicação é realizada de forma assíncrona através de eventos utilizando RabbitMQ e MassTransit.
 
 ## Responsabilidades
 
-- Consumir solicitações de compra
+- Consumir eventos de compra
 - Processar pagamentos simulados
-- Gerar resultado da transação
-- Publicar eventos de processamento de pagamento
+- Definir resultado da transação
+- Publicar eventos de pagamento processado
 
 ## Tecnologias utilizadas
 
 - .NET 8
-- ASP.NET Core Web API
 - MassTransit
 - RabbitMQ
 - Docker
@@ -31,22 +30,23 @@ A comunicação com os demais microsserviços é realizada de forma assíncrona 
 
 O projeto possui separação de responsabilidades:
 
-- **API**
-  - Controllers
-  - Endpoints HTTP
-
 - **Application**
-  - Consumers
+  - Consumers de eventos
   - Serviços de aplicação
   - Processamento de pagamento
+  - Publicação de eventos
 
 - **Domain**
-  - Entidades
+  - Eventos de domínio
   - Regras de negócio
 
 - **Infrastructure**
   - Configurações externas
-  - Integrações
+  - Integrações necessárias
+
+- **API**
+  - Inicialização da aplicação
+  - Configuração do pipeline da aplicação
 
 ## Mensageria
 
@@ -80,33 +80,29 @@ O serviço consome o evento:
 OrderPlacedEvent
 ```
 
-Recebido pelo consumidor:
+através do consumidor:
 
 ```
 OrderPlacedConsumer
 ```
 
-O evento contém informações necessárias para processamento:
+O evento contém informações da compra:
 
 - UserId
 - GameId
 - Price
 
-Após o processamento, o pagamento é aprovado ou rejeitado.
+Após o recebimento, o serviço realiza a simulação do pagamento.
 
 ## PaymentProcessedEvent
 
-Após concluir a simulação do pagamento, o serviço publica:
+Após o processamento, o PaymentsAPI publica:
 
 ```
 PaymentProcessedEvent
 ```
 
-Com informações como:
-
-- Identificação da compra
-- Status do pagamento
-- Resultado da operação
+Contendo o resultado da operação.
 
 Status possíveis:
 
@@ -115,20 +111,25 @@ Approved
 Rejected
 ```
 
+O evento é consumido pelo:
+
+- CatalogAPI
+- NotificationsAPI
+
 ## Docker
 
 O projeto possui Dockerfile utilizando multi-stage build.
 
-A construção da imagem é dividida em:
+O processo é dividido em:
 
 1. Compilação utilizando o SDK do .NET.
-2. Execução utilizando apenas o runtime necessário.
+2. Execução utilizando somente o runtime necessário.
 
 Benefícios:
 
-- Imagens menores.
+- Imagem final menor.
 - Melhor segurança.
-- Ambiente de produção otimizado.
+- Ambiente otimizado para produção.
 
 ## Kubernetes
 
@@ -145,7 +146,7 @@ Recursos utilizados:
 - ConfigMap
 - Secret
 
-## Execução local
+## Execução
 
 ### Docker Compose
 
@@ -155,17 +156,19 @@ docker compose up
 
 ### Kubernetes
 
+Aplicar os manifestos:
+
 ```bash
 kubectl apply -f k8s/
 ```
 
-Verificar execução:
+Verificar Pods:
 
 ```bash
 kubectl get pods
 ```
 
-Logs:
+Visualizar logs:
 
 ```bash
 kubectl logs <nome-do-pod>
@@ -175,8 +178,12 @@ kubectl logs <nome-do-pod>
 
 A aplicação utiliza Serilog para geração de logs estruturados.
 
-Os logs permitem acompanhar o processamento dos eventos e o funcionamento do consumidor.
+Os logs permitem acompanhar:
+
+- Consumo dos eventos.
+- Processamento das transações.
+- Publicação dos eventos de pagamento.
 
 ## Objetivo do serviço
 
-O FCG.PaymentsAPI representa o microsserviço responsável pelo processamento de pagamentos da plataforma FIAP Cloud Games, mantendo baixo acoplamento através da comunicação orientada a eventos.
+O FCG.PaymentsAPI representa o microsserviço responsável pelo processamento de pagamentos dentro da plataforma FIAP Cloud Games, mantendo baixo acoplamento através de arquitetura orientada a eventos.
