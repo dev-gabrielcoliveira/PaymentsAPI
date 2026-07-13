@@ -23,23 +23,27 @@ namespace FCG.PaymentsAPI.Application.Consumers
                 order.GameId,
                 order.Price);
 
+            // Simulação de integração com gateway de pagamento
+            var aprovado = true;
 
-            // Simulação de pagamento aprovado
+            var status = aprovado
+                ? "Approved"
+                : "Rejected";
+
             var paymentProcessedEvent = new PaymentProcessedEvent
             {
                 UserId = order.UserId,
                 GameId = order.GameId,
                 Price = order.Price,
-                Status = "Approved"
+                Status = status
             };
 
-
             await context.Publish(paymentProcessedEvent);
-
 
             _logger.LogInformation(
                 "[PaymentsAPI] Pagamento processado. Status: {Status}",
                 paymentProcessedEvent.Status);
         }
+    }
     }
 }
