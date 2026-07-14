@@ -7,8 +7,7 @@ namespace FCG.PaymentsAPI.Application.Consumers
     {
         private readonly ILogger<OrderPlacedConsumer> _logger;
 
-        public OrderPlacedConsumer(
-            ILogger<OrderPlacedConsumer> logger)
+        public OrderPlacedConsumer(ILogger<OrderPlacedConsumer> logger)
         {
             _logger = logger;
         }
@@ -23,27 +22,23 @@ namespace FCG.PaymentsAPI.Application.Consumers
                 order.GameId,
                 order.Price);
 
-            // Simulação de integração com gateway de pagamento
             var aprovado = true;
-
-            var status = aprovado
-                ? "Approved"
-                : "Rejected";
 
             var paymentProcessedEvent = new PaymentProcessedEvent
             {
                 UserId = order.UserId,
                 GameId = order.GameId,
                 Price = order.Price,
-                Status = status
+                Status = aprovado ? "Approved" : "Rejected"
             };
 
             await context.Publish(paymentProcessedEvent);
 
             _logger.LogInformation(
-                "[PaymentsAPI] Pagamento processado. Status: {Status}",
-                paymentProcessedEvent.Status);
+                "[NotificationsAPI] Notificação de compra enviada. Status: {Status} Usuário: {UserId}, Jogo: {GameId}",
+                paymentProcessedEvent.Status, 
+                order.UserId,
+                order.GameId);
         }
-    }
     }
 }
