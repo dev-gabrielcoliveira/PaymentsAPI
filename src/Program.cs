@@ -17,6 +17,7 @@ builder.Services.AddMassTransit(x =>
             h.Password("guest");
         });
 
+        cfg.UseRawJsonSerializer();
         cfg.ConfigureEndpoints(context);
     });
 });
