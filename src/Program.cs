@@ -1,5 +1,6 @@
 using FCG.PaymentsAPI.Application.Consumers;
 using MassTransit;
+using Prometheus;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -23,6 +24,10 @@ builder.Services.AddMassTransit(x =>
 });
 
 var app = builder.Build();
+// Captura todas requisições que entram na API
+app.UseHttpMetrics();
+// Mapeamento do endpoint que o prometheus vai espiar (ex: /metrics)
+app.MapMetrics();
 
 app.MapGet("/", () => "Payments API Rodando");
 
