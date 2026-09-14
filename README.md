@@ -50,7 +50,7 @@ O **PaymentsAPI** atua como ponto central no fluxo de mensagens, conectando o ba
 ```text
 [CatalogAPI] --(RabbitMQ: OrderPlacedEvent)--> [PaymentsAPI]
                                                       |
-    +-------------------------------------------------+---------------------------------------+
-    | (RabbitMQ: PaymentProcessedEvent)                                                       | (Azure Queue: notifications-v3)
-                                                                                              ↓
-                                                                       [NotificationsAPI.Serverless] (Envia notificação)
+    +-------------------------------------------------+-----------------------------+
+    | (RabbitMQ: PaymentProcessedEvent)                                             | (Azure Queue: notifications-v3)
+                                                                                    ↓
+                                                                    [NotificationsAPI.Serverless] (Envia notificação)
